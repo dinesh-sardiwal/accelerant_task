@@ -1,0 +1,46 @@
+<?php
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_FORM_ID_alter() for the system_site_information_settings() form.
+ */
+function accelerant_task_form_system_site_information_settings_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $siteapikey = \Drupal::config('system.site')->get('siteapikey');
+  $form['custom'] = [
+    '#type' => 'details',
+    '#title' => t('Other Details'),
+    '#open' => TRUE,
+  ];
+  $form['custom']['siteapikey'] = [
+    '#type' => 'textfield',
+    '#title' => t('Site API Key'),
+    '#attributes' => ['placeholder' => t('No API Key yet')],
+    '#default_value' => $siteapikey,
+    '#size' => 40,
+    '#description' => t('This key value is used for authenticating the api call'),
+  ];
+
+  if(!empty($siteapikey)) {
+    $form['actions']['submit']['#value'] = 'Update Configuration';
+  }
+
+  $form['#submit'][] = 'accelerant_task_update_site_info_submit';
+}
+
+/**
+ * Form submission handler for system_site_information_settings().
+ */
+function accelerant_task_update_site_info_submit(array &$form, FormStateInterface $form_state) {
+  $oldsiteapikey = \Drupal::config('system.site')->get('siteapikey');
+  $siteapikey = $form_state->getvalue('siteapikey');
+  \Drupal::configFactory()->getEditable('system.site')
+    ->set('siteapikey', $siteapikey)
+    ->save();
+
+  if(empty($oldsiteapikey) && !empty($siteapikey)) {
+    drupal_set_message('Site API Key has been saved');
+  }else if(!empty($oldsiteapikey) || !empty($siteapikey)) {
+    drupal_set_message('Site API Key has been updated');
+  }
+}

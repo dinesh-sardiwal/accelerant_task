@@ -1,0 +1,6 @@
+axelerant.json:
+  path: '/page_json/{siteapikey}/{nid}'
+  defaults:
+    _controller: '\Drupal\accelerant_task\Controller\AxelerantController::page_json'
+  requirements:
+    _access: 'TRUE'
